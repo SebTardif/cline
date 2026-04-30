@@ -2008,6 +2008,8 @@ export class TelemetryService {
 	 * `ripgrep_spawn_failed` and `workspace_unavailable` are picker-search
 	 * failures, surfaced by the `searchFiles` controller; the others are
 	 * mention-content retrieval failures.
+	 *
+	 * @param fsContext Optional filesystem info, emitted as `fs_class` and `fs_type`.
 	 */
 	public captureMentionFailed(
 		mentionType: "file" | "folder" | "url" | "problems" | "terminal" | "git-changes" | "commit",
@@ -2020,6 +2022,7 @@ export class TelemetryService {
 			| "workspace_unavailable"
 			| "unknown",
 		errorMessage?: string,
+		fsContext?: { fsClass?: "local" | "network" | "unknown"; fsType?: string },
 	) {
 		this.capture({
 			event: TelemetryService.EVENTS.TASK.MENTION_FAILED,
@@ -2027,6 +2030,8 @@ export class TelemetryService {
 				mentionType,
 				errorType,
 				errorMessage: errorMessage?.substring(0, MAX_ERROR_MESSAGE_LENGTH),
+				...(fsContext?.fsClass ? { fs_class: fsContext.fsClass } : {}),
+				...(fsContext?.fsType ? { fs_type: fsContext.fsType } : {}),
 				timestamp: new Date().toISOString(),
 			},
 		})
@@ -2038,12 +2043,14 @@ export class TelemetryService {
 	 * @param resultCount Number of results returned
 	 * @param searchType Type of search (file, folder, or all)
 	 * @param isEmpty Whether the search returned no results
+	 * @param fsContext Optional filesystem info, emitted as `fs_class` and `fs_type`.
 	 */
 	public captureMentionSearchResults(
 		query: string,
 		resultCount: number,
 		searchType: "file" | "folder" | "all",
 		isEmpty: boolean,
+		fsContext?: { fsClass?: "local" | "network" | "unknown"; fsType?: string },
 	) {
 		this.capture({
 			event: TelemetryService.EVENTS.TASK.MENTION_SEARCH_RESULTS,
@@ -2052,6 +2059,8 @@ export class TelemetryService {
 				resultCount,
 				searchType,
 				isEmpty,
+				...(fsContext?.fsClass ? { fs_class: fsContext.fsClass } : {}),
+				...(fsContext?.fsType ? { fs_type: fsContext.fsType } : {}),
 				timestamp: new Date().toISOString(),
 			},
 		})
